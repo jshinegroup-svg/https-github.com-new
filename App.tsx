@@ -871,6 +871,8 @@ export default function App() {
     );
   };
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const isPhoneLayout = windowWidth < 480;
+  const mainContentWidth = Math.min(Math.max(windowWidth - (isPhoneLayout ? 32 : 108), 280), 720);
   const draftCoreGuardianPreview = coreGuardianRecommendedArchetype && coreGuardianRecommendedState
     ? buildCoreGuardianArchetypeDraft(coreGuardianRecommendedArchetype, coreGuardianRecommendedState)
     : null;
@@ -5573,7 +5575,7 @@ export default function App() {
           </View>
         </View>
       ) : (
-      <ScrollView ref={mainScrollRef} style={styles.mainScroll} contentContainerStyle={[styles.container, { width: Math.min(Math.max(windowWidth - 108, 280), 720) }]}>
+      <ScrollView ref={mainScrollRef} style={styles.mainScroll} contentContainerStyle={[styles.container, { width: mainContentWidth }]}> 
         <Text style={styles.title}>Holton Guardian App v-next</Text>
         <Text style={styles.subtitle}>實體卡是本體,App 是控制台與引導層。若你看到 v-next,代表已吃到最新版本。</Text>
         <View style={styles.actionFeedbackCard}>
@@ -6645,8 +6647,8 @@ export default function App() {
                 {missionSopFlowCards.length - effectiveCurrentStep - 1 > 0 ? <View style={[styles.missionSopProgressFillRemaining, { flex: missionSopFlowCards.length - effectiveCurrentStep - 1 }]} /> : null}
               </View>
               <Text style={styles.missionSopProgressCaption}>{`第 ${effectiveCurrentStep + 1} / ${missionSopFlowCards.length} 步`}{missionSopFlowCards.length - effectiveCurrentStep - 1 > 0 ? `・後面還有 ${missionSopFlowCards.length - effectiveCurrentStep - 1} 步` : "・這一步後收尾"}</Text>
-              <View style={styles.missionSopShowcaseCard}>
-                <View style={styles.missionSopShowcaseMediaColumn}>
+              <View style={[styles.missionSopShowcaseCard, isPhoneLayout && styles.missionSopShowcaseCardPhone]}>
+                <View style={[styles.missionSopShowcaseMediaColumn, isPhoneLayout && styles.missionSopShowcaseMediaColumnPhone]}>
                   <View style={styles.missionSopShowcaseMediaFrame}>
                     {selectedMissionSopCard.imageSource ? <Image source={selectedMissionSopCard.imageSource} style={styles.missionSopShowcaseImage} resizeMode="contain" /> : null}
                   </View>
@@ -6691,9 +6693,9 @@ export default function App() {
                   const isNextCard = index === effectiveCurrentStep + 1;
                   const isSelectedCard = index === selectedMissionStep;
                   return (
-                    <Pressable key={`mission-sop-${card.id}`} onPress={() => setSelectedMissionSopIndex(index)} style={[styles.missionSopFlowCard, isCurrentCard && styles.missionSopFlowCardCurrent, isPastCard && styles.missionSopFlowCardPast, isPrevCard && styles.missionSopFlowCardPrev, isNextCard && styles.missionSopFlowCardNext, isSelectedCard && styles.missionSopFlowCardSelected]}>
+                    <Pressable key={`mission-sop-${card.id}`} onPress={() => setSelectedMissionSopIndex(index)} style={[styles.missionSopFlowCard, isPhoneLayout && styles.missionSopFlowCardPhone, isCurrentCard && styles.missionSopFlowCardCurrent, isPastCard && styles.missionSopFlowCardPast, isPrevCard && styles.missionSopFlowCardPrev, isNextCard && styles.missionSopFlowCardNext, isSelectedCard && styles.missionSopFlowCardSelected]}>
                       {isCurrentCard ? <View style={styles.missionSopFlowCurrentRail} /> : null}
-                      {card.imageSource ? <View style={styles.missionSopFlowThumbWrap}><Image source={card.imageSource} style={styles.missionSopFlowThumb} resizeMode="contain" /></View> : null}
+                      {card.imageSource ? <View style={[styles.missionSopFlowThumbWrap, isPhoneLayout && styles.missionSopFlowThumbWrapPhone]}><Image source={card.imageSource} style={styles.missionSopFlowThumb} resizeMode="contain" /></View> : null}
                       <View style={styles.missionSopFlowMiniContent}>
                         <View style={styles.missionSopFlowHeader}>
                           <Text style={[styles.missionSopFlowStep, isCurrentCard && styles.missionSopFlowStepCurrent, isPrevCard && styles.missionSopFlowStepPrev, isNextCard && styles.missionSopFlowStepNext]}>{isCurrentCard ? "目前" : isPrevCard ? "上一步" : isPastCard ? "已完成" : isNextCard ? "下一步" : "後續"}</Text>
@@ -8785,7 +8787,9 @@ const styles = StyleSheet.create({
   missionSopText: { fontSize: 15, color: "#334155", lineHeight: 22 },
   missionSopFlowLead: { fontSize: 12, color: "#64748b", lineHeight: 16, marginTop: 4, marginBottom: 8, fontWeight: "700" },
   missionSopShowcaseCard: { flexDirection: "row", gap: 10, backgroundColor: "#f8fafc", borderRadius: 18, borderWidth: 1, borderColor: "#dbeafe", padding: 10, alignItems: "stretch", marginTop: 4, marginBottom: 6 },
+  missionSopShowcaseCardPhone: { flexDirection: "column" },
   missionSopShowcaseMediaColumn: { width: "42%", minWidth: 118, gap: 8 },
+  missionSopShowcaseMediaColumnPhone: { width: "100%", minWidth: 0 },
   missionSopShowcaseMediaFrame: { flex: 1, minHeight: 168, backgroundColor: "#ffffff", borderRadius: 14, borderWidth: 1, borderColor: "#e2e8f0", overflow: "hidden", alignItems: "center", justifyContent: "center", padding: 6 },
   missionSopShowcaseImage: { width: "100%", height: "100%", borderRadius: 10, backgroundColor: "#ffffff" },
   missionSopShowcaseContentColumn: { flex: 1, gap: 6 },
@@ -8824,6 +8828,7 @@ const styles = StyleSheet.create({
   missionSopFocusText: { fontSize: 14, color: "#134e4a", lineHeight: 20, marginTop: 6 },
   missionSopFlowList: { gap: 6, paddingVertical: 0 },
   missionSopFlowCard: { flexDirection: "row", gap: 10, alignItems: "stretch", backgroundColor: "#fafafa", borderRadius: 14, paddingTop: 8, paddingRight: 8, paddingBottom: 8, paddingLeft: 10, borderWidth: 1, borderColor: "#e7e5e4", minHeight: 118 },
+  missionSopFlowCardPhone: { flexDirection: "column" },
   missionSopFlowCardCurrent: { backgroundColor: "#ffffff", borderColor: "#cbd5e1", borderWidth: 1.2, paddingLeft: 11 },
   missionSopFlowCardPast: { backgroundColor: "#fafafa", borderColor: "#e7e5e4" },
   missionSopFlowCardPrev: { borderColor: "#e2e8f0", backgroundColor: "#fafafa" },
@@ -8840,6 +8845,7 @@ const styles = StyleSheet.create({
   missionSopFlowImageWrap: { width: "100%", height: 42, borderRadius: 8, backgroundColor: "#fcfcfc", marginTop: 1, marginBottom: 1, padding: 3, borderWidth: 1, borderColor: "#f1f5f9", overflow: "hidden", opacity: 0.86 },
   missionSopFlowImage: { width: "100%", height: "100%", borderRadius: 6, backgroundColor: "#fcfcfc" },
   missionSopFlowThumbWrap: { width: 108, borderRadius: 12, backgroundColor: "#ffffff", borderWidth: 1, borderColor: "#e2e8f0", overflow: "hidden", alignItems: "center", justifyContent: "center", padding: 5 },
+  missionSopFlowThumbWrapPhone: { width: "100%" },
   missionSopFlowThumb: { width: "100%", height: 102, borderRadius: 10, backgroundColor: "#ffffff" },
   missionSopFlowMiniContent: { flex: 1 },
   missionSopFlowTitle: { fontSize: 12, color: "#0f172a", fontWeight: "700", marginTop: 1, lineHeight: 15 },
